@@ -37,15 +37,10 @@ pipeline {
         stage('Execute Integration Tests') {
             steps {
                 script {
-                    try {
-                        // The Node application runs inside Docker exclusively. No NodeJS on Jenkins is required!
-                        // This leverages `docker exec` to internally parse and validate the API inside the container framework.
-                        sh 'docker exec taskcode-server npm test'
-                    } finally {
-                        // Crucial TEARDOWN phase guarantees we strictly dispose of sandbox instances
-                        sh 'docker stop taskcode-server || true'
-                        sh 'docker rm taskcode-server || true'
-                    }
+                    // The Node application runs inside Docker.
+                    // This leverages `docker exec` to natively validate the API.
+                    // If tests fail, the build halts. If they pass, the container continuously runs for Production!
+                    sh 'docker exec taskcode-server npm test'
                 }
             }
         }
