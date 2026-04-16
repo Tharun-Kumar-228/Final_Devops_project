@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskCode - Collaborative Editor & Todo Manager</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-icon">{'</>'}</span>
+                <h1>TaskCode</h1>
+            </div>
+            <div class="header-actions">
+                <span class="status-indicator">
+                    <span class="dot connected" id="connectionStatus"></span>
+                    <span id="connectionText">Connected</span>
+                </span>
+            </div>
+        </header>
+
+        <!-- Main Content (2-column Layout) -->
+        <main class="main-layout">
+            <!-- Left Column: Code Editor -->
+            <section class="editor-section glass-panel">
+                <div class="panel-header">
+                    <h2>Shared Notes & Code</h2>
+                    <span class="badge">Real-time sync</span>
+                </div>
+                <div class="editor-wrapper">
+                    <textarea id="codeEditor"></textarea>
+                </div>
+            </section>
+
+            <!-- Right Column: Task Manager -->
+            <section class="task-section glass-panel">
+                <div class="panel-header">
+                    <h2>Task Manager</h2>
+                </div>
+                
+                <div class="todo-input-container">
+                    <input type="text" id="todoInput" placeholder="What needs to be done?" autocomplete="off">
+                    <button id="addTodoBtn" class="btn-primary">Add Task</button>
+                </div>
+                
+                <div class="todo-list-container">
+                    <ul id="todoList" class="todo-list">
+                        <!-- Todos will be rendered here dynamically -->
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- CodeMirror JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <!-- Custom JS -->
+    <script src="/app.js"></script>
+</body>
+</html>

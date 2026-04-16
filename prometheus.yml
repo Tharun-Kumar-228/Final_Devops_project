@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 15s # How frequently to scrape targets
+  evaluation_interval: 15s
+
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'jenkins_pipeline'
+    
+    # Metrics path for the Jenkins Prometheus Plugin
+    metrics_path: '/prometheus/'
+    
+    # Target Configuration
+    static_configs:
+      - targets: ['<YOUR_JENKINS_VM_IP>:8080']
+        labels:
+          role: 'ci_server'
