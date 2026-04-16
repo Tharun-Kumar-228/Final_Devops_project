@@ -2,7 +2,7 @@ const http = require('http');
 const { io } = require('socket.io-client');
 const assert = require('assert');
 
-const SERVER_URL = 'http://localhost:3000';
+const SERVER_URL = 'http://127.0.0.1:3000';
 let passCount = 0;
 let failCount = 0;
 
