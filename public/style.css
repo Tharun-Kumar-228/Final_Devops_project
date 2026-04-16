@@ -319,10 +319,54 @@ input[type="text"]:focus {
     }
 }
 
-/* Responsive */
+/* Responsive Layout */
 @media (max-width: 900px) {
+    .app-container {
+        height: auto;
+        min-height: 100vh;
+        padding: 0 1rem;
+    }
+    
+    .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem 0;
+    }
+    
+    .header-actions {
+        width: 100%;
+    }
+    
+    .status-indicator {
+        justify-content: center;
+        padding: 0.6rem;
+        width: 100%;
+    }
+
     .main-layout {
-        grid-template-columns: 1fr;
-        grid-template-rows: 50vh 50vh;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .editor-section {
+        height: 60vh;
+        min-height: 400px;
+    }
+
+    .task-section {
+        min-height: 500px;
+        flex: 1;
+    }
+
+    .todo-input-container {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        padding: 0.8rem;
+        width: 100%;
     }
 }
