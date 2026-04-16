@@ -1,49 +1,50 @@
 pipeline {
     agent any
 
-    environment {
-        // Defines the Node.js path if needed, 
-        // assumes "node" tool is globally configured in Jenkins setup under Global Tools Configurations
-        NODEJS_HOME = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
-        PATH = "${NODEJS_HOME}/bin:${env.PATH}"
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                // Checkout code from branch
+                // Jenkins automatically pulls the latest master from GitHub Hook execution
                 checkout scm
             }
         }
         
-        stage('Install Dependencies') {
+        stage('Build Docker Image') {
             steps {
-                // Install exactly those dependencies tracked in package.json
-                sh 'npm install'
+                // Build an isolated, containerized architecture tracking the Dockerfile
+                sh 'docker build -t taskcode-app:latest .'
             }
         }
 
-        stage('Run Server and Tests') {
+        stage('Deploy Sandbox Container') {
+            steps {
+                script {
+                    // Preemptively purge any ghost containers that might collision on Port 3000
+                    sh 'docker rm -f taskcode-server || true'
+                    
+                    // Instantiate container completely detached from the Pipeline thread
+                    sh 'docker run -d -p 3000:3000 --name taskcode-server taskcode-app:latest'
+                    
+                    // Allow backend network logic sufficient time to mount localhost hooks
+                    sleep time: 5, unit: 'SECONDS'
+                    
+                    // Emit docker startup logs verifying the listener spawned successfully
+                    sh 'docker logs taskcode-server'
+                }
+            }
+        }
+
+        stage('Execute Integration Tests') {
             steps {
                 script {
                     try {
-                        // We must start the Node.js server in the background and pipe output
-                        // 'nohup' keeps it running, and '&' backgrounds it
-                        sh 'nohup node server.js > server.log 2>&1 &'
-                        
-                        // Give it enough time to fully launch the HTTP/WebSockets service
-                        sleep time: 5, unit: 'SECONDS'
-                        
-                        // Execute the full integration test script
-                        // Standard output will inherently be attached to the Jenkins build console!
-                        sh 'npm test'
+                        // The Node application runs inside Docker exclusively. No NodeJS on Jenkins is required!
+                        // This leverages `docker exec` to internally parse and validate the API inside the container framework.
+                        sh 'docker exec taskcode-server npm test'
                     } finally {
-                        // Guaranteed Cleanup task: Terminate the backgrounded Node application
-                        // Important so subsequent builds don't hit "EADDRINUSE" port errors
-                        sh 'pkill -f "node server.js" || true'
-                        
-                        // Print any critical server-side logs to debug potential errors
-                        sh 'cat server.log || true'
+                        // Crucial TEARDOWN phase guarantees we strictly dispose of sandbox instances
+                        sh 'docker stop taskcode-server || true'
+                        sh 'docker rm taskcode-server || true'
                     }
                 }
             }
@@ -52,13 +53,13 @@ pipeline {
     
     post {
         always {
-            echo "CI/CD Pipeline finished execution with result: ${currentBuild.currentResult}"
+            echo "CI Pipeline Execution finished definitively with result: ${currentBuild.currentResult}"
         }
         success {
-            echo "All tests passed successfully!"
+            echo "Container successfully compiled and fully validated via internal Node automated testing suite."
         }
         failure {
-            echo "Build failed. Investigate the test results in the console output above."
+            echo "A build phase failed... Ensure Docker permissions are granted on the VM runner, and cross-reference Jenkins Console Outputs via the failed test."
         }
     }
 }
